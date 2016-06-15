@@ -30,7 +30,7 @@ public class HollowFragment extends Fragment {
     private static final String TAG = HollowFragment.class.getSimpleName();
 
     // Movies json url
-    private static final String url = "http://www.steel.cheap/app/hl";
+    private static final String url = "http://188.166.245.22/hsh/indexHL.php";
     private ProgressDialog pDialog;
     private List<Item> itemList = new ArrayList<>();
     private ListView listView;
@@ -55,7 +55,7 @@ public class HollowFragment extends Fragment {
         pDialog.show();
 
         // Creating volley request obj
-        JsonArrayRequest movieReq = new JsonArrayRequest(url,
+        JsonArrayRequest itemsReq = new JsonArrayRequest(url,
                 new Response.Listener<JSONArray>() {
                     @Override
                     public void onResponse(JSONArray response) {
@@ -97,7 +97,7 @@ public class HollowFragment extends Fragment {
         });
 
         // Adding request to request queue
-        AppController.getInstance().addToRequestQueue(movieReq);
+        AppController.getInstance().addToRequestQueue(itemsReq);
     }
 
     @Override

@@ -71,15 +71,12 @@ public class CustomListAdapter extends BaseAdapter {
 		description.setText(m.getDescription());
 		
 		// rating
-        itemcode.setText("Kod: " + m.getItemcode());
-		
-		// genre
-		/**String genreStr = "";
-		for (String str : m.getGenre()) {
-			genreStr += str + ", ";
-		}
-		genreStr = genreStr.length() > 0 ? genreStr.substring(0,
-				genreStr.length() - 2) : genreStr;**/
+        if(!m.getItemcode().equals("")) {
+            itemcode.setText("Code: " + m.getItemcode());
+        } else {
+            itemcode.setText(" ");
+        }
+
 		quantityuom.setText(m.getQuantityuom());
 		
 		// release year

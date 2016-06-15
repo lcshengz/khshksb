@@ -6,7 +6,7 @@ public class Item {
 	public Item() {
 	}
 
-	public Item(String itemcode, String thumbnailUrl, String description, String quantityuom, String unitprice) {
+	public Item(String itemcode, String thumbnailUrl, String description, String description2, String quantityuom, String unitprice, String unitprice2) {
 		this.itemcode = itemcode;
 		this.thumbnailUrl = thumbnailUrl;
 		this.description = description;
@@ -46,12 +46,12 @@ public class Item {
 		this.quantityuom = quantityuom;
 	}
 
-	public String getUnitprice() {
-		return unitprice;
-	}
+    public String getUnitprice() {
+        return unitprice;
+    }
 
-	public void setUnitprice(String unitprice) {
-		this.unitprice = unitprice;
-	}
+    public void setUnitprice(String unitprice) {
+        this.unitprice = unitprice;
+    }
 
 }
