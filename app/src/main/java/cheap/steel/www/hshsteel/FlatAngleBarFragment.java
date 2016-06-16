@@ -25,12 +25,12 @@ import cheap.steel.www.hshsteel.adater.CustomListAdapter;
 import cheap.steel.www.hshsteel.app.AppController;
 import cheap.steel.www.hshsteel.model.Item;
 
-public class RoundPipeFragment extends Fragment {
+public class FlatAngleBarFragment extends Fragment {
     // Log tag
-    private static final String TAG = RoundPipeFragment.class.getSimpleName();
+    private static final String TAG = FlatAngleBarFragment.class.getSimpleName();
 
     // Movies json url
-    private static final String url = "http://188.166.245.22/hsh/indexRP.php";
+    private static final String url = "http://188.166.245.22/hsh/indexFAB.php";
     private ProgressDialog pDialog;
     private List<Item> itemList = new ArrayList<>();
     private ListView listView;

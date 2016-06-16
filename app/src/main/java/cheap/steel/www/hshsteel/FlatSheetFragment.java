@@ -1,8 +1,8 @@
 package cheap.steel.www.hshsteel;
 
+import android.app.Fragment;
 import android.app.ProgressDialog;
 import android.os.Bundle;
-import android.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -25,12 +25,12 @@ import cheap.steel.www.hshsteel.adater.CustomListAdapter;
 import cheap.steel.www.hshsteel.app.AppController;
 import cheap.steel.www.hshsteel.model.Item;
 
-public class RoundPipeFragment extends Fragment {
+public class FlatSheetFragment extends Fragment {
     // Log tag
-    private static final String TAG = RoundPipeFragment.class.getSimpleName();
+    private static final String TAG = FlatSheetFragment.class.getSimpleName();
 
     // Movies json url
-    private static final String url = "http://188.166.245.22/hsh/indexRP.php";
+    private static final String url = "http://188.166.245.22/hsh/indexFS.php";
     private ProgressDialog pDialog;
     private List<Item> itemList = new ArrayList<>();
     private ListView listView;

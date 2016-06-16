@@ -10,10 +10,15 @@ import android.view.ViewGroup;
 
 import java.util.List;
 
+import cheap.steel.www.hshsteel.FlatAngleBarFragment;
+import cheap.steel.www.hshsteel.FlatSheetFragment;
 import cheap.steel.www.hshsteel.HollowFragment;
 import cheap.steel.www.hshsteel.MainActivity;
 import cheap.steel.www.hshsteel.R;
+import cheap.steel.www.hshsteel.RoundBarFragment;
 import cheap.steel.www.hshsteel.RoundPipeFragment;
+import cheap.steel.www.hshsteel.ScheduleFragment;
+import cheap.steel.www.hshsteel.UTrackFragment;
 import cheap.steel.www.hshsteel.model.ItemObjects;
 
 public class SolventRecyclerViewAdapter extends RecyclerView.Adapter<SolventViewHolders> {
@@ -49,6 +54,14 @@ public class SolventRecyclerViewAdapter extends RecyclerView.Adapter<SolventView
                 fragmentJump(position1);
             }
         });
+
+        holder.countryName.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                fragmentJump(position1);
+            }
+        });
     }
 
     private void fragmentJump(int position) {
@@ -60,8 +73,22 @@ public class SolventRecyclerViewAdapter extends RecyclerView.Adapter<SolventView
             case 1:
                 mFragment = new HollowFragment();
                 break;
+            case 2:
+                mFragment = new FlatAngleBarFragment();
+                break;
+            case 3:
+                mFragment = new RoundBarFragment();
+                break;
+            case 4:
+                mFragment = new FlatSheetFragment();
+                break;
+            case 5:
+                mFragment = new UTrackFragment();
+                break;
+            case 6:
+                mFragment = new ScheduleFragment();
+                break;
             default:
-                mFragment = new RoundPipeFragment();
                 break;
         }
 

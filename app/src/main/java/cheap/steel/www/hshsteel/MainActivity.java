@@ -15,9 +15,11 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.app.NotificationCompat;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.TextView;
 
 import com.github.javiersantos.appupdater.AppUpdaterUtils;
 import com.github.javiersantos.appupdater.enums.AppUpdaterError;
@@ -39,6 +41,7 @@ public class MainActivity extends AppCompatActivity {
     private ProgressDialog loading;
     int id = 1;
     private List<ItemObjects> gaggeredList;
+    private TextView tvMarquee;
 
     private StaggeredGridLayoutManager gaggeredGridLayoutManager;
 
@@ -46,6 +49,13 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        tvMarquee = (TextView)findViewById(R.id.tvMainMarquee);
+
+        tvMarquee.setSelected(true);
+        tvMarquee.setEllipsize(TextUtils.TruncateAt.MARQUEE);
+        tvMarquee.setSingleLine(true);
+        tvMarquee.setText(getString(R.string.main_marquee));
 
         if(getIntent().getBooleanExtra("Exit", false)) {
             finish();
@@ -108,13 +118,13 @@ public class MainActivity extends AppCompatActivity {
 
         List<ItemObjects> listViewItems = new ArrayList<>();
 
-        listViewItems.add(new ItemObjects("Round Pipe", R.drawable.one));
+        listViewItems.add(new ItemObjects("Round Tube", R.drawable.one));
         listViewItems.add(new ItemObjects("Hollow", R.drawable.two));
-        listViewItems.add(new ItemObjects("Flower", R.drawable.three));
-        listViewItems.add(new ItemObjects("Roller", R.drawable.four));
-
-        //listViewItems.add(new ItemObjects("Bracket", R.drawable.one));
-        //listViewItems.add(new ItemObjects("Capping", R.drawable.two));
+        listViewItems.add(new ItemObjects("Flat & Angle Bar", R.drawable.three));
+        listViewItems.add(new ItemObjects("Shaft", R.drawable.four));
+        listViewItems.add(new ItemObjects("Flat Sheet", R.drawable.one));
+        listViewItems.add(new ItemObjects("U Rail & Track", R.drawable.two));
+        listViewItems.add(new ItemObjects("Schedule Round Tube", R.drawable.two));
 
         return listViewItems;
     }
