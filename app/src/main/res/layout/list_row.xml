@@ -1,58 +1,158 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="fill_parent"
-    android:layout_height="wrap_content"
-    android:background="@drawable/list_row_selector"
-    android:padding="8dp" >
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal" >
 
-    <!-- Thumbnail Image -->
     <com.android.volley.toolbox.NetworkImageView
         android:id="@+id/thumbnail"
-        android:layout_width="80dp"
-        android:layout_height="80dp"
-        android:layout_alignParentLeft="true"
-        android:layout_marginRight="8dp" />
+        android:layout_width="300dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1.5"/>
 
-    <!-- Item Title -->
-    <TextView
-        android:id="@+id/itemcode"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignTop="@+id/thumbnail"
-        android:layout_toRightOf="@+id/thumbnail"
-        android:textSize="@dimen/itemcode"
-        android:textStyle="bold" />
+    <TableLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:paddingEnd="10dp"
+        android:paddingStart="10dp"
+        android:paddingBottom="10dp">
 
-    <!-- Rating -->
-    <TextView
-        android:id="@+id/description"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/itemcode"
-        android:layout_marginTop="1dip"
-        android:layout_toRightOf="@+id/thumbnail"
-        android:textSize="@dimen/description" />
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
 
-    <!-- Genre -->
-    <TextView
-        android:id="@+id/quantityuom"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/description"
-        android:layout_marginTop="5dp"
-        android:layout_toRightOf="@+id/thumbnail"
-        android:textColor="@color/quantityuom"
-        android:textSize="@dimen/quantityuom" />
+            <TextView
+                android:id="@+id/itemcode"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="start"
+                android:textAlignment="gravity"
+                android:textSize="@dimen/itemcode"
+                android:textStyle="bold" />
 
-    <!-- Release Year -->
-    <TextView
-        android:id="@+id/unitprice"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textColor="@color/unitprice"
-        android:textSize="@dimen/unitprice"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true" />
+        </TableRow>
 
-</RelativeLayout>
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <TextView
+                android:id="@+id/description"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="1dip"
+                android:layout_weight="1"
+                android:paddingBottom="10dp"
+                android:gravity="start"
+                android:textAlignment="gravity"
+                android:textSize="@dimen/description" />
+        </TableRow>
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:weightSum="3">
+
+            <TextView
+                android:id="@+id/quantityuom"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:textColor="@color/quantityuom"
+                android:textSize="@dimen/quantityuom" />
+
+            <TextView
+                android:id="@+id/unitprice"
+                android:layout_width="0dp"
+                android:layout_weight="2"
+                android:paddingStart="10dp"
+                android:paddingLeft="10dp"
+                android:paddingEnd="0dp"
+                android:paddingRight="0dp"
+                android:textColor="@color/unitprice"
+                android:textSize="@dimen/unitprice"
+                android:gravity="end"
+                android:textAlignment="gravity" />
+        </TableRow>
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:weightSum="3">
+
+            <TextView
+                android:id="@+id/quantityuom1"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:textColor="@color/quantityuom"
+                android:textSize="@dimen/quantityuom" />
+
+            <TextView
+                android:id="@+id/unitprice1"
+                android:layout_width="0dp"
+                android:layout_weight="2"
+                android:paddingStart="10dp"
+                android:paddingLeft="10dp"
+                android:paddingEnd="0dp"
+                android:paddingRight="0dp"
+                android:textColor="@color/unitprice"
+                android:textSize="@dimen/unitprice"
+                android:gravity="end"
+                android:textAlignment="gravity" />
+        </TableRow>
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:weightSum="3">
+
+            <TextView
+                android:id="@+id/quantityuom2"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:textColor="@color/quantityuom"
+                android:textSize="@dimen/quantityuom" />
+
+            <TextView
+                android:id="@+id/unitprice2"
+                android:layout_width="0dp"
+                android:layout_weight="2"
+                android:paddingStart="10dp"
+                android:paddingLeft="10dp"
+                android:paddingEnd="0dp"
+                android:paddingRight="0dp"
+                android:textColor="@color/unitprice"
+                android:textSize="@dimen/unitprice"
+                android:gravity="end"
+                android:textAlignment="gravity" />
+        </TableRow>
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:weightSum="3">
+
+            <TextView
+                android:id="@+id/quantityuom3"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:textColor="@color/quantityuom"
+                android:textSize="@dimen/quantityuom" />
+
+            <TextView
+                android:id="@+id/unitprice3"
+                android:layout_width="0dp"
+                android:layout_weight="2"
+                android:paddingStart="10dp"
+                android:paddingLeft="10dp"
+                android:paddingEnd="0dp"
+                android:paddingRight="0dp"
+                android:textColor="@color/unitprice"
+                android:textSize="@dimen/unitprice"
+                android:gravity="end"
+                android:textAlignment="gravity" />
+        </TableRow>
+
+    </TableLayout>
+</LinearLayout>

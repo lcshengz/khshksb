@@ -1,14 +1,15 @@
 package cheap.steel.www.hshsteel.model;
 
-import android.app.Application;
+public class ItemObjects {
+    private String name, photo, file;
 
-public class ItemObjects extends Application {
-    private String name;
-    private int photo;
+    public ItemObjects() {
+    }
 
-    public ItemObjects(String name, int photo) {
+    public ItemObjects(String name, String photo, String file) {
         this.name = name;
         this.photo = photo;
+        this.file = file;
     }
 
     public String getName() {
@@ -19,11 +20,19 @@ public class ItemObjects extends Application {
         this.name = name;
     }
 
-    public int getPhoto() {
+    public String getPhoto() {
         return photo;
     }
 
-    public void setPhoto(int photo) {
+    public void setPhoto(String photo) {
         this.photo = photo;
+    }
+
+    public String getFile() {
+        return file;
+    }
+
+    public void setFile(String file) {
+        this.file = file;
     }
 }

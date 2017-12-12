@@ -1,8 +1,8 @@
 <resources>
         
-    <dimen name="itemcode">17dp</dimen>
-    <dimen name="description">15dip</dimen>
-    <dimen name="quantityuom">15dip</dimen>
-    <dimen name="unitprice">17dip</dimen>
+    <dimen name="itemcode">15sp</dimen>
+    <dimen name="description">17sp</dimen>
+    <dimen name="quantityuom">17sp</dimen>
+    <dimen name="unitprice">17sp</dimen>
 
 </resources>

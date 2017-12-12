@@ -8,14 +8,16 @@ import android.widget.TextView;
 import cheap.steel.www.hshsteel.R;
 
 public class SolventViewHolders extends RecyclerView.ViewHolder {
-    public TextView countryName;
-    public ImageView countryPhoto;
+    public TextView itemName;
+    public ImageView itemImage;
+    public TextView itemFile;
 
     public SolventViewHolders(View itemView) {
         super(itemView);
 
-        countryName = (TextView) itemView.findViewById(R.id.country_name);
-        countryPhoto = (ImageView) itemView.findViewById(R.id.country_photo);
+        itemName = (TextView) itemView.findViewById(R.id.item_name);
+        itemImage = (ImageView) itemView.findViewById(R.id.item_image);
+        itemFile = (TextView) itemView.findViewById(R.id.item_file);
 
     }
 }

@@ -1,30 +1,33 @@
 package cheap.steel.www.hshsteel.adater;
 
 import android.app.Fragment;
+import android.app.ProgressDialog;
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.List;
 
-import cheap.steel.www.hshsteel.FlatAngleBarFragment;
-import cheap.steel.www.hshsteel.FlatSheetFragment;
-import cheap.steel.www.hshsteel.HollowFragment;
+import cheap.steel.www.hshsteel.DynamicFragment;
 import cheap.steel.www.hshsteel.MainActivity;
 import cheap.steel.www.hshsteel.R;
-import cheap.steel.www.hshsteel.RoundBarFragment;
-import cheap.steel.www.hshsteel.RoundPipeFragment;
-import cheap.steel.www.hshsteel.ScheduleFragment;
-import cheap.steel.www.hshsteel.UTrackFragment;
 import cheap.steel.www.hshsteel.model.ItemObjects;
 
 public class SolventRecyclerViewAdapter extends RecyclerView.Adapter<SolventViewHolders> {
 
     private List<ItemObjects> itemList;
     private Context mContext;
+    private ProgressDialog pDialog;
 
     public SolventRecyclerViewAdapter(Context context, List<ItemObjects> itemList) {
         this.itemList = itemList;
@@ -42,58 +45,72 @@ public class SolventRecyclerViewAdapter extends RecyclerView.Adapter<SolventView
 
     @Override
     public void onBindViewHolder(SolventViewHolders holder, int position) {
-        holder.countryName.setText(itemList.get(position).getName());
-        holder.countryPhoto.setImageResource(itemList.get(position).getPhoto());
 
-        final int position1 = holder.getAdapterPosition();
+        //ItemObjects itemObjects1 = itemList.get(position);
+        String category = itemList.get(position).getName();
+        String imageLocation = itemList.get(position).getFile();
+        holder.itemName.setText(category);
+        holder.itemImage.setImageBitmap(getBitmapFromUrl(itemList.get(position).getPhoto()));
+        //int id = mContext.getResources().getIdentifier(itemObjects1.getPhoto(), "drawable", mContext.getPackageName());
+        //holder.itemImage.setImageResource(id);
+        holder.itemFile.setText(imageLocation);
 
-        holder.countryPhoto.setOnClickListener(new View.OnClickListener() {
+        final String phpFile = String.valueOf(holder.itemFile.getText());
+
+        holder.itemImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
-                fragmentJump(position1);
+                fragmentJump(phpFile);
             }
         });
 
-        holder.countryName.setOnClickListener(new View.OnClickListener() {
+        holder.itemName.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
-                fragmentJump(position1);
+                fragmentJump(phpFile);
             }
         });
     }
 
-    private void fragmentJump(int position) {
-        Fragment mFragment = null;
-        switch (position) {
-            case 0:
-                mFragment = new RoundPipeFragment();
-                break;
-            case 1:
-                mFragment = new HollowFragment();
-                break;
-            case 2:
-                mFragment = new FlatAngleBarFragment();
-                break;
-            case 3:
-                mFragment = new RoundBarFragment();
-                break;
-            case 4:
-                mFragment = new FlatSheetFragment();
-                break;
-            case 5:
-                mFragment = new UTrackFragment();
-                break;
-            case 6:
-                mFragment = new ScheduleFragment();
-                break;
-            default:
-                break;
+    private Bitmap getBitmapFromUrl(String imageuri){
+        HttpURLConnection connection=null;
+
+        try {
+            URL url=new URL(imageuri);
+            try {
+                connection= (HttpURLConnection) url.openConnection();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            connection.setDoInput(true);
+            try {
+                connection.connect();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            InputStream is= null;
+            try {
+                is = connection.getInputStream();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            Bitmap mybitmap= BitmapFactory.decodeStream(is);
+            return mybitmap;
+
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+            return null;
         }
+    }
+
+    private void fragmentJump(String phpFile1) {
+        Fragment mFragment;
+        mFragment = new DynamicFragment();
 
         Bundle mBundle = new Bundle();
-        mBundle.putInt("item_selected_key", position);
+        mBundle.putString("index_php", phpFile1);
         mFragment.setArguments(mBundle);
         switchContent(R.id.fragment_frame, mFragment);
     }
@@ -109,7 +126,7 @@ public class SolventRecyclerViewAdapter extends RecyclerView.Adapter<SolventView
 
     @Override
     public int getItemCount() {
-        return this.itemList.size();
+        return this.itemList == null ? 0 : this.itemList.size();
     }
-}
 
+}

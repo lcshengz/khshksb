@@ -5,31 +5,33 @@
     android:layout_height="match_parent"
     android:padding="8dp">
 
-        <TextView
-            android:id="@+id/tvMainMarquee"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
-            android:layout_alignParentEnd="true"
-            android:layout_gravity="center_horizontal"
-            android:lines="1"
-            android:ellipsize="marquee"
-            android:fadingEdge="horizontal"
-            android:marqueeRepeatLimit="marquee_forever"
-            android:scrollHorizontally="true"
-            android:textColor="#ff4500"/>
+    <TextView
+        android:id="@+id/tvMainMarquee"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:layout_gravity="center_horizontal"
+        android:singleLine="true"
+        android:ellipsize="marquee"
+        android:fadingEdge="horizontal"
+        android:marqueeRepeatLimit="marquee_forever"
+        android:scrollHorizontally="true"
+        android:paddingBottom="5dp"
+        android:textColor="#ff4500"/>
 
-        <android.support.v7.widget.RecyclerView
-            android:id="@+id/recycler_view"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_below="@+id/tvMainMarquee"
-            android:scrollbars="vertical" />
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/recycler_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/tvMainMarquee"
+        android:scrollbars="vertical" />
 
-        <FrameLayout
-            android:id="@+id/fragment_frame"
-            android:layout_below="@+id/tvMainMarquee"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"/>
+    <FrameLayout
+        android:id="@+id/fragment_frame"
+        android:layout_below="@+id/tvMainMarquee"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+    </FrameLayout>
 
 </RelativeLayout>

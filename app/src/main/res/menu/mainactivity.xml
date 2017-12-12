@@ -1,0 +1,10 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto" >
+
+    <item
+        android:id="@+id/fab1"
+        android:icon="@drawable/chat"
+        android:title="Chatroom"
+        app:showAsAction="ifRoom"/>
+
+</menu>

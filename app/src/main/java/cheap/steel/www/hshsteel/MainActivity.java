@@ -2,133 +2,305 @@ package cheap.steel.www.hshsteel;
 
 import android.app.Fragment;
 import android.app.FragmentTransaction;
-import android.app.NotificationManager;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
+import android.os.Handler;
+import android.os.StrictMode;
+import android.support.v4.app.ActivityCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.app.NotificationCompat;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.ViewTreeObserver;
 import android.widget.TextView;
+import android.widget.Toast;
 
-import com.github.javiersantos.appupdater.AppUpdaterUtils;
-import com.github.javiersantos.appupdater.enums.AppUpdaterError;
-import com.github.javiersantos.appupdater.enums.UpdateFrom;
-import com.github.javiersantos.appupdater.objects.Update;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.VolleyLog;
+import com.android.volley.toolbox.JsonArrayRequest;
+import com.android.volley.toolbox.Volley;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.FirebaseApp;
+import com.google.firebase.FirebaseOptions;
+import com.google.firebase.remoteconfig.FirebaseRemoteConfig;
+import com.google.firebase.remoteconfig.FirebaseRemoteConfigSettings;
 
-import java.io.File;
-import java.io.IOException;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserFactory;
+
+import java.io.InputStream;
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
 
 import cheap.steel.www.hshsteel.adater.SolventRecyclerViewAdapter;
+import cheap.steel.www.hshsteel.app.HttpHandler;
 import cheap.steel.www.hshsteel.model.ItemObjects;
-import cheap.steel.www.hshsteel.update.DownloadManager;
 
 public class MainActivity extends AppCompatActivity {
-    private NotificationManager mNotifyManager;
-    private NotificationCompat.Builder mBuilder;
-    private ProgressDialog loading;
+    private ProgressDialog pDialog;
     int id = 1;
-    private List<ItemObjects> gaggeredList;
+    public static List<ItemObjects> listViewItems;
     private TextView tvMarquee;
-
+    boolean doubleBackToExitPressedOnce = false;
     private StaggeredGridLayoutManager gaggeredGridLayoutManager;
+    private String LOG_TAG = "XML";
+    private SolventRecyclerViewAdapter rcAdapter;
+    private final static String url = "http://188.166.245.22/hsh/indexCategory.php";
+    RequestQueue requestQueue;
+    JsonArrayRequest RequestOfJSonArray;
+    RecyclerView recyclerView;
+    private FirebaseRemoteConfig mRemoteConfig = FirebaseRemoteConfig.getInstance();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+        StrictMode.setThreadPolicy(policy);
 
-        tvMarquee = (TextView)findViewById(R.id.tvMainMarquee);
+        listViewItems = new ArrayList<>();
 
-        tvMarquee.setSelected(true);
-        tvMarquee.setEllipsize(TextUtils.TruncateAt.MARQUEE);
-        tvMarquee.setSingleLine(true);
-        tvMarquee.setText(getString(R.string.main_marquee));
-
-        if(getIntent().getBooleanExtra("Exit", false)) {
-            finish();
-            return;
-        }
-
-        AppUpdaterUtils appUpdaterUtils = new AppUpdaterUtils(getApplicationContext())
-                .setUpdateFrom(UpdateFrom.XML)
-                .setUpdateXML("http://188.166.245.22/dl/update.xml")
-                .withListener(new AppUpdaterUtils.UpdateListener() {
-                    @Override
-                    public void onSuccess(Update update, Boolean isUpdateAvailable) {
-                        if(isUpdateAvailable) {
-                            new android.app.AlertDialog.Builder(MainActivity.this)
-                                    .setIcon(android.R.drawable.ic_dialog_alert)
-                                    .setTitle("Update Available")
-                                    .setMessage("Latest version is required in order to continue use this app.\n\nDownload now?")
-                                    .setCancelable(false)
-                                    .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                                        @Override
-                                        public void onClick(DialogInterface dialog, int which) {
-                                            new RetrieveDownload().execute();
-                                        }
-                                    })
-                                    .setNegativeButton("No", new DialogInterface.OnClickListener() {
-                                        @Override
-                                        public void onClick(DialogInterface dialogInterface, int i) {
-                                            Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-                                            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                                            intent.putExtra("Exit", true);
-                                            startActivity(intent);
-                                            finish();
-                                        }
-                                    })
-                                    .show();
-                        }
-                    }
-
-                    @Override
-                    public void onFailed(AppUpdaterError error) {
-                        Log.d("AppUpdater", "Something went wrong");
-                    }
-                });
-        appUpdaterUtils.start();
-
-        RecyclerView recyclerView = (RecyclerView)findViewById(R.id.recycler_view);
+        recyclerView = (RecyclerView)findViewById(R.id.recycler_view);
         recyclerView.setHasFixedSize(true);
 
         gaggeredGridLayoutManager = new StaggeredGridLayoutManager(3, 1);
         recyclerView.setLayoutManager(gaggeredGridLayoutManager);
 
-        gaggeredList = getListItemData();
-
-        SolventRecyclerViewAdapter rcAdapter = new SolventRecyclerViewAdapter(MainActivity.this, gaggeredList);
+        rcAdapter = new SolventRecyclerViewAdapter(MainActivity.this, listViewItems);
         recyclerView.setAdapter(rcAdapter);
 
+        if(isNetworkConnected()) {
+            initializeFirebase();
+            fetchRemoteConfigValues();
+
+            JSON_HTTP_CALL();
+            new GetXMLFromServer().execute();
+        } else {
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            //builder.setTitle("Information");
+            builder.setCancelable(false);
+            builder.setMessage("Internet connection is required to run this app!");
+            builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    Intent intent = new Intent(getApplication(), MainActivity.class);
+                    startActivity(intent);
+                }
+            });
+            AlertDialog dialog = builder.show();
+            TextView messageView = (TextView)dialog.findViewById(android.R.id.message);
+            assert messageView != null;
+            messageView.setGravity(Gravity.START);
+        }
+
+        if(getIntent().getBooleanExtra("Exit", false)) {
+            finish();
+        }
     }
 
-    private List<ItemObjects> getListItemData(){
-
-        List<ItemObjects> listViewItems = new ArrayList<>();
-
-        listViewItems.add(new ItemObjects("Round Tube", R.drawable.one));
-        listViewItems.add(new ItemObjects("Hollow", R.drawable.two));
-        listViewItems.add(new ItemObjects("Flat & Angle Bar", R.drawable.three));
-        listViewItems.add(new ItemObjects("Shaft", R.drawable.four));
-        listViewItems.add(new ItemObjects("Flat Sheet", R.drawable.one));
-        listViewItems.add(new ItemObjects("U Rail & Track", R.drawable.two));
-        listViewItems.add(new ItemObjects("Schedule Round Tube", R.drawable.two));
-
-        return listViewItems;
+    public void initializeFirebase() {
+        if (FirebaseApp.getApps(this).isEmpty()) {
+            FirebaseApp.initializeApp(this, FirebaseOptions.fromResource(this));
+        }
+        final FirebaseRemoteConfig config = FirebaseRemoteConfig.getInstance();
+        FirebaseRemoteConfigSettings configSettings = new FirebaseRemoteConfigSettings.Builder()
+                .setDeveloperModeEnabled(false)
+                .build();
+        config.setConfigSettings(configSettings);
     }
 
+    private void fetchRemoteConfigValues() {
+        long cacheExpiration = 3600;
+
+        //expire the cache immediately for development mode.
+        if (mRemoteConfig.getInfo().getConfigSettings().isDeveloperModeEnabled()) {
+            cacheExpiration = 0;
+        }
+
+        mRemoteConfig.fetch(cacheExpiration)
+                .addOnCompleteListener(this, new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(Task<Void> task) {
+                        if (task.isSuccessful()) {
+                            // task successful. Activate the fetched data
+                            mRemoteConfig.activateFetched();
+                            appUpdater(mRemoteConfig.getString("versionCode"));
+                        } else {
+                            //task failed
+                        }
+                    }
+                });
+    }
+
+    private void appUpdater(String playStoreVersionName) {
+
+        int NewVersionName = Integer.parseInt(playStoreVersionName);
+        int currentAppVersionName=0;
+        try {
+            currentAppVersionName = MainActivity.this.getPackageManager().getPackageInfo(getPackageName(), 0)
+                    .versionCode;
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        if(currentAppVersionName<NewVersionName){
+            //Create Alert Dialog
+            AlertDialog alertDialog = new AlertDialog.Builder(this)
+                    .setTitle("New Version")
+                    .setMessage("Update available!\nGo to Play Store now?")
+                    .setPositiveButton("YES", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            Intent intent = new Intent(Intent.ACTION_VIEW);
+                            intent.setData(Uri.parse("market://details?id=cheap.steel.www.hshsteel"));
+                            startActivity(intent);
+                        }
+                    }).setNegativeButton("No", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                        }
+                    }).create();
+            alertDialog.show();
+        }
+    }
+
+    public void JSON_HTTP_CALL(){
+
+        pDialog = new ProgressDialog(MainActivity.this);
+        // Showing progress dialog before making http request
+        pDialog.setMessage("Loading...");
+        pDialog.setCancelable(false);
+        pDialog.show();
+
+        RequestOfJSonArray = new JsonArrayRequest(url,
+                new Response.Listener<JSONArray>() {
+                    @Override
+                    public void onResponse(JSONArray response) {
+                        Log.d("Log", response.toString());
+                        ParseJSonResponse(response);
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                pDialog.dismiss();
+                JSON_HTTP_CALL();
+                VolleyLog.d("Volley", "Error: " + error.getMessage());
+            }
+        });
+        requestQueue = Volley.newRequestQueue(MainActivity.this);
+        RequestOfJSonArray.setShouldCache(false);
+        requestQueue.add(RequestOfJSonArray);
+    }
+
+    public void ParseJSonResponse(JSONArray array){
+
+        for (int i = 0; i < array.length(); i++) {
+            ItemObjects itemObjects1 = new ItemObjects();
+            JSONObject obj = null;
+            try {
+                obj = array.getJSONObject(i);
+
+                itemObjects1.setName(obj.getString("Category"));
+                itemObjects1.setPhoto(obj.getString("Image"));
+                itemObjects1.setFile(obj.getString("File"));
+
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            listViewItems.add(itemObjects1);
+        }
+        // notifying list adapter about data changes
+        // so that it renders the list view with updated data
+        rcAdapter = new SolventRecyclerViewAdapter(this, listViewItems);
+        recyclerView.setAdapter(rcAdapter);
+        requestQueue.getCache().clear();
+
+        recyclerView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+                pDialog.dismiss();
+            }
+        });
+    }
+
+    public void ParseXML(String xmlString){
+
+        try {
+
+            XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
+            factory.setNamespaceAware(true);
+            XmlPullParser parser = factory.newPullParser();
+            parser.setInput(new StringReader(xmlString));
+            int eventType = parser.getEventType();
+
+            while (eventType != XmlPullParser.END_DOCUMENT){
+                eventType = parser.next();
+            }
+
+
+        }catch (Exception e){
+            Log.d(LOG_TAG,"Error in ParseXML()",e);
+        }
+
+    }
+
+    private class GetXMLFromServer extends AsyncTask<String,Void,String> {
+
+        HttpHandler nh;
+
+        @Override
+        protected String doInBackground(String... strings) {
+
+            final String URL = "http://steel.cheap/dl/message.xml";
+            String res = "";
+            nh =  new HttpHandler();
+            InputStream is = nh.CallServer(URL);
+            if(is!=null){
+                res = nh.StreamToString(is);
+
+            }else{
+                res = "NotConnected";
+            }
+
+            return res;
+        }
+        protected void onPostExecute(String result) {
+            super.onPostExecute(result);
+
+            if(result.equals("NotConnected")){
+
+                Toast.makeText(getApplicationContext(),"Connection Error",Toast.LENGTH_SHORT).show();
+
+            }else {
+                tvMarquee = (TextView)findViewById(R.id.tvMainMarquee);
+                tvMarquee.setSelected(true);
+                tvMarquee.setEllipsize(TextUtils.TruncateAt.MARQUEE);
+                tvMarquee.setSingleLine(true);
+                tvMarquee.setText(result);
+            }
+        }
+    }
 
     public void switchContent(int fragment_frame, Fragment fragment) {
         FragmentTransaction ft = getFragmentManager().beginTransaction();
@@ -136,118 +308,20 @@ public class MainActivity extends AppCompatActivity {
         ft.commit();
     }
 
-    class RetrieveDownload extends AsyncTask<Void, Void, Void> {
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-
-            mNotifyManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-            mBuilder = new NotificationCompat.Builder(MainActivity.this);
-            mBuilder.setContentTitle("Download")
-                    .setContentText("Download in progress")
-                    .setSmallIcon(R.drawable.ic_download);
-
-            new DownloadNotification().execute();
-            loading = ProgressDialog.show(MainActivity.this,"Please wait...","Updating app...",false,false);
-        }
-
-        @Override
-        protected Void doInBackground(Void... params) {
-
-            String url = "http://188.166.245.22/dl/hsh.apk";
-
-            String saveDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).toString();
-
-            try {
-                DownloadManager.downloadFile(url, saveDir);
-            } catch (IOException ex) {
-                ex.printStackTrace();
-            }
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Void result) {
-            super.onPostExecute(result);
-
-            Intent intent = new Intent(Intent.ACTION_VIEW);
-            intent.setDataAndType(Uri.fromFile(new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).toString() + "/hsh.apk")), "application/vnd.android.package-archive");
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK); // without this flag android returned a intent error!
-            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-            intent.putExtra("Exit", true);
-            startActivity(intent);
-
-            loading.dismiss();
-            finish();
-        }
-    }
-
-    private class DownloadNotification extends AsyncTask<Void, Integer, Integer> {
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-
-            // Displays the progress bar for the first time.
-            mBuilder.setProgress(100, 0, false);
-            mNotifyManager.notify(id, mBuilder.build());
-        }
-
-        @Override
-        protected void onProgressUpdate(Integer... values) {
-            // Update progress
-            mBuilder.setProgress(100, values[0], false);
-            mNotifyManager.notify(id, mBuilder.build());
-            super.onProgressUpdate(values);
-        }
-
-        @Override
-        protected Integer doInBackground(Void... params) {
-            int i;
-            for (i = 0; i <= 100; i += 5) {
-                // Sets the progress indicator completion percentage
-                publishProgress(Math.min(i, 100));
-                try {
-                    // Sleep for 5 seconds
-                    Thread.sleep(2 * 1000);
-                } catch (InterruptedException e) {
-                    Log.d("TAG", "sleep failure");
-                }
-            }
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Integer result) {
-            super.onPostExecute(result);
-            mBuilder.setContentText("Download complete");
-            // Removes the progress bar
-            mBuilder.setProgress(0, 0, false);
-            mNotifyManager.notify(id, mBuilder.build());
-        }
-    }
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.main, menu);
+        getMenuInflater().inflate(R.menu.mainactivity, menu);
+
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            case R.id.home:
-                Intent homeIntent = new Intent(this, MainActivity.class);
+            case R.id.fab1:
+                Intent homeIntent = new Intent(this, Chat.class);
                 startActivity(homeIntent);
-                break;
-            case R.id.roundpipe:
-                Fragment fragment;
-                fragment = new RoundPipeFragment();
-                FragmentTransaction ft = getFragmentManager().beginTransaction();
-                ft.replace(R.id.fragment_frame, fragment);
-                ft.commit();
                 break;
             default:
                 break;
@@ -259,6 +333,53 @@ public class MainActivity extends AppCompatActivity {
     public boolean onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);
         return true;
+    }
+
+    @Override
+    public void onBackPressed() {
+        int count = getFragmentManager().getBackStackEntryCount();
+
+        if (count == 0) {
+            if (doubleBackToExitPressedOnce) {
+                super.onBackPressed();
+                Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                intent.putExtra("Exit", true);
+                startActivity(intent);
+                finish();
+                return;
+            }
+        } else {
+            getFragmentManager().popBackStack();
+        }
+
+        this.doubleBackToExitPressedOnce = true;
+        Toast.makeText(this, "Press back again to exit", Toast.LENGTH_SHORT).show();
+
+        new Handler().postDelayed(new Runnable() {
+
+            @Override
+            public void run() {
+                doubleBackToExitPressedOnce=false;
+            }
+        }, 2000);
+    }
+
+    public static boolean hasPermissions(Context context, String... permissions) {
+        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && context != null && permissions != null) {
+            for (String permission : permissions) {
+                if (ActivityCompat.checkSelfPermission(context, permission) != PackageManager.PERMISSION_GRANTED) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    private boolean isNetworkConnected() {
+        ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+
+        return cm.getActiveNetworkInfo() != null;
     }
 
 }
